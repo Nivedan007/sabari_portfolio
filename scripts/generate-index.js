@@ -56,3 +56,17 @@ const topIndexHtml = `<!DOCTYPE html>
 const topIndexPath = path.join(__dirname, '../dist/index.html');
 fs.writeFileSync(topIndexPath, topIndexHtml, 'utf-8');
 console.log('✓ Generated dist/index.html for hosting compatibility');
+
+// Create a small server shim so preview plugins that expect `dist/server/server.js`
+// can import the built server entrypoint (some plugins use `server.js` path).
+try {
+  const serverDir = path.join(__dirname, '../dist/server');
+  const serverShimPath = path.join(serverDir, 'server.js');
+  const serverShimContent = `export { default } from './index.js';\n`;
+  if (fs.existsSync(serverDir)) {
+    fs.writeFileSync(serverShimPath, serverShimContent, 'utf-8');
+    console.log('✓ Wrote dist/server/server.js shim');
+  }
+} catch (e) {
+  console.error('Failed to write server shim:', e);
+}
